@@ -37,3 +37,7 @@ WHERE
 ORDER BY
 	avg_fragmentation_in_percent DESC,
 	page_count DESC
+
+
+
+--ALTER INDEX [index_name] ON table_name REBUILD WITH (ONLINE = ON);
