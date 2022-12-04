@@ -24,7 +24,7 @@ EXECUTE dbo.IndexOptimize
 @LogToTable = 'Y'
 
 ----------------------------------------------------
---STEP 3: REPORT
+--STEP 3-a: REPORT COMMAND LOG
 ----------------------------------------------------
 SELECT 
 	CL.ID,
@@ -46,3 +46,69 @@ END AS IndexType,
 	END AS CommandType
 FROM 
 	[master].[dbo].[CommandLog] AS CL
+
+
+----------------------------------------------------
+--STEP 3-b: SAVE RESULT BEFORE AND AFTER REBUILD
+----------------------------------------------------
+
+
+--CREATE TABLE TO SAVE OUTPUT
+USE test
+GO
+
+CREATE TABLE RebuildLog (
+    [OBJECT_ID] int,
+    [index_id] int,
+    [ObjectName] nvarchar(128),
+    [IndexName] nvarchar(128),
+    [partition_number] int,
+    [alloc_unit_type_desc] nvarchar(60),
+    [page_count_before] bigint,
+    [avg_fragmentation_in_percent_before] numeric(6,4),
+    [page_count_after] bigint,
+    [avg_fragmentation_in_percent_after] numeric(6,4),
+    [CreatedOn] datetime
+)
+
+--INSERT BELOW OUTPUT TO THE "RebuildLog" TABLE
+USE test
+GO
+
+SELECT 
+	ips.OBJECT_ID,
+	OBJECT_NAME(ips.OBJECT_ID) AS ObjectName,
+	i.index_id,
+	ips.partition_number,
+	ips.alloc_unit_type_desc,
+	ips.page_count AS page_count_before,
+	CONVERT(decimal(6,4),ips.avg_fragmentation_in_percent) AS avg_fragmentation_in_percent_before,
+	GETDATE() AS CreatedOn
+FROM 
+	sys.dm_db_index_physical_stats(DB_ID(N'test'), NULL, NULL, NULL, 'SAMPLED') ips --DETAILED / SAMPLED
+INNER JOIN sys.indexes i 
+ON 
+		ips.object_id = i.object_id
+	AND ips.index_id = i.index_id
+
+--UPDATE TABLE AFTER REBUILD
+USE test
+GO
+
+UPDATE RebuildLog
+SET 
+	page_count_after = ips.page_count,
+	avg_fragmentation_in_percent_after = CONVERT(decimal(6,4),ips.avg_fragmentation_in_percent)
+FROM 
+	sys.dm_db_index_physical_stats(DB_ID(N'test'), NULL, NULL, NULL, 'SAMPLED') ips --DETAILED / SAMPLED
+INNER JOIN sys.indexes i 
+ON 
+		ips.object_id = i.object_id
+	AND ips.index_id = i.index_id
+INNER JOIN
+	RebuildLog
+ON
+		RebuildLog.OBJECT_ID=ips.OBJECT_ID
+	AND RebuildLog.index_id=i.index_id
+	AND RebuildLog.partition_number=ips.partition_number
+	AND CONVERT(DATE,RebuildLog.CreatedOn,111)=CONVERT(DATE,GETDATE(),111)
