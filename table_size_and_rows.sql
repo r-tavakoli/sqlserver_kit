@@ -36,6 +36,6 @@ ORDER BY
     t.Name
 
 
---GET SIZE OF TABLE WITH SP_SPACEDUSED
+--GET SIZE OF A TABLE WITH SP_SPACEDUSED
 USE test;
 EXEC sp_spaceused N'dbo.task';   
