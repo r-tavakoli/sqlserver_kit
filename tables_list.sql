@@ -1,5 +1,4 @@
 --LIST TABLES OF A DATABASE
-
 USE test
 GO
 
