@@ -1,0 +1,29 @@
+First verify the "Distribute Transaction Coordinator" Service is
+running on both database server computer and client computers
+1.      Go to "Administrative Tools > Services"
+2.      Turn on the "Distribute Transaction Coordinator" Service if it is not running
+
+If it is running and client application is not on the same computer as
+the database server, on the computer running database server
+1.      Go to "Administrative Tools > Component Services"
+2.      On the left navigation tree, go to "Component Services > Computers
+> My Computer" (you may need to double click and wait as some nodes
+need time to expand)
+3.      Right click on "My Computer", select "Properties"
+4.      Select "MSDTC" tab
+5.      Click "Security Configuration"
+6.      Make sure you check "Network DTC Access", "Allow Remote Client",
+"Allow Inbound/Outbound", "Enable TIP" (Some option may not be
+necessary, have a try to get your configuration)
+7.      The service will restart
+8.      BUT YOU MAY NEED TO REBOOT YOUR SERVER IF IT STILL DOESN'T WORK
+(This is the thing drove me crazy before)
+
+On your client computer use the same above procedure to open the
+"Security Configuration" setting, make sure you check "Network DTC
+Access", "Allow Inbound/Outbound" option, restart service and computer
+if necessary.
+
+On you SQL server service manager, click "Service" dropdown, select
+"Distribute Transaction Coordinator", it should be also running on
+your server computer.
