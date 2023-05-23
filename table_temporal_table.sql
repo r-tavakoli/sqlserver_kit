@@ -1,0 +1,50 @@
+
+
+--HISTORY TABLE
+CREATE TABLE DepartmentHistory
+(
+    DeptID INT NOT NULL
+  , DeptName VARCHAR(50) NOT NULL
+  , ManagerID INT NULL
+  , ParentDeptID INT NULL
+  , ValidFrom DATETIME2 NOT NULL
+  , ValidTo DATETIME2 NOT NULL
+);
+GO
+
+--INDEXES
+CREATE CLUSTERED COLUMNSTORE INDEX IX_DepartmentHistory
+    ON DepartmentHistory;
+CREATE NONCLUSTERED INDEX IX_DepartmentHistory_ID_PERIOD_COLUMNS
+    ON DepartmentHistory (ValidTo, ValidFrom, DeptID);
+GO
+
+--MAIN TABLE
+CREATE TABLE Department
+(
+    DeptID int NOT NULL PRIMARY KEY CLUSTERED
+  , DeptName VARCHAR(50) NOT NULL
+  , ManagerID INT NULL
+  , ParentDeptID INT NULL
+--SYSDATETIME
+  , ValidFrom DATETIME2 GENERATED ALWAYS AS ROW START NOT NULL
+  , ValidTo DATETIME2 GENERATED ALWAYS AS ROW END NOT NULL
+  , PERIOD FOR SYSTEM_TIME (ValidFrom, ValidTo)
+)
+WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.DepartmentHistory));
+
+--INSERT VALUES TO TEST
+INSERT INTO Department (DeptID, DeptName, ManagerID, ParentDeptID)
+VALUES
+	(1, 'TEST', 1, 1),
+	(2, 'TEST', 1, 1),
+	(3, 'TEST', 1, 1)
+
+UPDATE Department
+SET 
+	DeptName = 'NEW TEST'
+WHERE
+	DeptName = 'TEST'
+
+SELECT * FROM Department
+
