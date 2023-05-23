@@ -1,0 +1,17 @@
+
+Default Ports
+
+SQL Server:
+    TCP: 1433 (Default instance running over TCP)
+    UDP: 1434 (SQL Server Browser service)
+
+SSIS (If SSIS run-time environment, on the server is 2012 or later, there is no need to SSIS Service):
+    Program: Dts/Binn/MsDtsSrvr ==> needs to add a firewall rule (Enable TCP/IP from SQL Configuration Manager and restart services[Engine and ssis])
+    TCP: 135
+    UDP: --
+
+SSAS:
+    TCP: 2382 (both multidimensional and tabular)
+
+
+
