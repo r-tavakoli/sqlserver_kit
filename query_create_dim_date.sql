@@ -1,12 +1,16 @@
 
-USE NORTHWIND --CHANGE DATABASE
+--this file contains the scripts for creating and managing "DimDate" table
+
+----------------------------------------------
+--CREATE TABLE ON DW
+----------------------------------------------
+USE test
+GO
+
 DECLARE @dates TABLE (FullDate DATE)
 DECLARE @FromDate DATETIME = '2011-03-21' --1390/01/01
 DECLARE @ToDate DATETIME = '2032-03-19' --1410/12/29
 
---------------------------------------
---CREATE DIMDATE TABLE
---------------------------------------
 DROP TABLE IF EXISTS dbo.DimDate
 CREATE TABLE dbo.DimDate
 (
@@ -46,8 +50,9 @@ CREATE TABLE dbo.DimDate
 	[PersianYearCurrentPast] NVARCHAR(12) NULL,
 	[PersianMonthCurrentPast] NVARCHAR(25) NULL,
 	[PersianSeasonCurrentPast] NVARCHAR(25) NULL,
-	[PersianWeekCurrentPast] NVARCHAR(12) NULL
-) ON [PRIMARY]
+	[PersianWeekCurrentPast] NVARCHAR(12) NULL,
+	[TodayAndYesterday] NVARCHAR(12) NULL
+) ON [Dimensions] --MAKE SURE OF FILE GROUP
 
 --------------------------------------
 --INSERT NULL RECORD
@@ -349,7 +354,7 @@ BEGIN
 	WHERE DimDate.PersianYear = FORMAT(GETDATE(), 'yyyy', 'FA-IR') - 1
 
 END
-
+GO
 --EXEC usp_SetPersianCurrentAndPastYearOnDimDate
 
 --------------------------------------
@@ -408,7 +413,7 @@ BEGIN
 			WHERE PersianYearMonth=FORMAT(GETDATE(), 'yyyyMM', 'FA-IR')
 		)
 END
-
+GO
 --EXEC usp_SetPersianCurrentAndPastSeasonOnDimDate
 
 --------------------------------------
@@ -472,7 +477,7 @@ BEGIN
 			WHERE PersianYearMonth=FORMAT(GETDATE(), 'yyyyMM', 'FA-IR')
 		)
 END
-
+GO
 --EXEC usp_SetPersianCurrentAndPastMonthOnDimDate
 
 
@@ -499,18 +504,57 @@ BEGIN
 		(
 			SELECT PersianYearWeekId
 			FROM DimDate
-			WHERE PersianDateKey=FORMAT(GETDATE(), 'yyyyMMdd', 'FA-IR') * 1
+			WHERE DimDate.FullDateAlternateKey = CAST(GETDATE() AS DATE)
 		)
 
 	--PREVIOUS WEEK
 	UPDATE DimDate
-	SET DimDate.PersianWeekCurrentPast = N'فصل گذشته'
+	SET DimDate.PersianWeekCurrentPast = N'هفته گذشته'
 	WHERE DimDate.PersianYearWeekId = 
 		(
 			SELECT PersianYearWeekId - 1
 			FROM DimDate
-			WHERE PersianDateKey=FORMAT(GETDATE(), 'yyyyMMdd', 'FA-IR') * 1
+			WHERE DimDate.FullDateAlternateKey = CAST(GETDATE() AS DATE)
 		)
 END
-
+GO
 --EXEC usp_SetPersianCurrentAndPastWeekOnDimDate
+
+
+
+--------------------------------------
+--TODAY AND YESTERDAY
+--------------------------------------
+DROP PROCEDURE IF EXISTS usp_SetTodayAndYesterday
+GO
+
+CREATE PROCEDURE usp_SetTodayAndYesterday
+AS
+
+BEGIN
+	--SET COLUMN TO NULL
+	UPDATE DimDate
+	SET DimDate.TodayAndYesterday = NULL
+	WHERE DimDate.TodayAndYesterday IS NOT NULL
+
+	--Today
+	UPDATE DimDate
+	SET DimDate.TodayAndYesterday = N'امروز'
+	WHERE DimDate.FullDateAlternateKey = CAST(GETDATE() AS DATE)
+
+	--Yesterday
+	UPDATE DimDate
+	SET DimDate.TodayAndYesterday = N'دیروز'
+	WHERE DimDate.FullDateAlternateKey = CAST(GETDATE()-1 AS DATE)
+END
+GO
+--EXEC usp_SetTodayAndYesterday
+
+--------------------------------------
+--EXECUTE SPs
+--------------------------------------
+EXEC usp_SetPersianCurrentAndPastYearOnDimDate
+EXEC usp_SetPersianCurrentAndPastSeasonOnDimDate
+EXEC usp_SetPersianCurrentAndPastMonthOnDimDate
+EXEC usp_SetPersianCurrentAndPastWeekOnDimDate
+EXEC usp_SetTodayAndYesterday
