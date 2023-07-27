@@ -2,7 +2,7 @@
 USE db_source
 
 --CREATE DUMMY DB
---CREATE DATABASE [db_destination]
+CREATE DATABASE [db_destination]
 
 
 --VARIABLES
@@ -12,7 +12,7 @@ DECLARE @db_name NVARCHAR(100) = 'db_destination'
 --DEFINE CURSTOR TO GET SCRIPTS OF EACH TABLE
 DECLARE script_cursor CURSOR  
     FOR 
-		--SCRIPTS OF EACH TABLE
+		--INSERT INTO COMMAND FOR EACH TABLE
 		SELECT 
 			NAME,
 			CASE 
