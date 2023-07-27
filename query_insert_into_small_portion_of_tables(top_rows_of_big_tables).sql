@@ -3,10 +3,7 @@ USE db_source
 
 --CREATE DUMMY DB
 --CREATE DATABASE [db_destination]
--- ON  PRIMARY 
---( NAME = N'rtn_CopyDBClvRate', FILENAME = N'F:\tavakoli\cube\rtn_CopyDBClvRate.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
--- LOG ON 
---( NAME = N'rtn_CopyDBClvRate_log', FILENAME = N'F:\tavakoli\cube\rtn_CopyDBClvRate_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+
 
 --VARIABLES
 DECLARE @insert_script NVARCHAR(MAX), @table_name NVARCHAR(100)
