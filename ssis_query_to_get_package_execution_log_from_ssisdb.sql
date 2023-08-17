@@ -4,7 +4,7 @@
 --https://learn.microsoft.com/en-us/sql/integration-services/system-views/catalog-executions-ssisdb-database?view=sql-server-2017
 
 ------------------------------------------
---package execution stats (time and status)
+--package execution's stats (time and status)
 ------------------------------------------
 SELECT E.execution_id,
        E.folder_name,
