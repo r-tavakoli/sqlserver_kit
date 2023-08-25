@@ -1,0 +1,18 @@
+
+
+--CREATE MEASURE TABLE (EMPTY TABLE) IN TABULAR MODEL (MULTIPLE COLUMNS)
+
+= DATATABLE (
+    "Values1", BOOLEAN,
+    "Values2", BOOLEAN,
+    "Values3", BOOLEAN,
+    "Values4", BOOLEAN,
+    "Values5", BOOLEAN,
+    {
+        { 0, 0, 0, 0, 0 }
+    })
+
+--OR (ONE COLUMN)
+={""}
+
+--RIGHT CLICK ON EACH COLUMN AND HIDE COLUMN(S) FROM CLIENT
